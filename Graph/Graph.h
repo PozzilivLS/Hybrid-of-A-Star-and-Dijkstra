@@ -14,6 +14,8 @@ class Graph {
  public:
   void AddEdge(Point a, Point b, double weight, bool is_dynamic = false);
 
+  int GetSize();
+
   const std::unordered_map<Point, double, Point::Hash>& GetNeighbors(
       const Point& node);
 
@@ -33,6 +35,8 @@ class Graph {
   std::unordered_map<Point, std::unordered_map<Point, double, Point::Hash>,
                      Point::Hash>
       edges_;
+  int vertices_count_ = 0;
+
   std::unordered_set<Point, Point::Hash> dynamic_vertices_;
 
   // Хеш-функция для пары точек

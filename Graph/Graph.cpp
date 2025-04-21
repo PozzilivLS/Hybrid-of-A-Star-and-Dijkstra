@@ -16,9 +16,18 @@ void Graph::AddEdge(Point a, Point b, double weight, bool is_dynamic) {
     dynamic_vertices_.emplace(b);
   }
   
+  if (edges_.count(a) == 0) {
+    vertices_count_++;
+  }
+  if (edges_.count(b) == 0) {
+    vertices_count_++;
+  }
+
   edges_[a][b] = weight;
   edges_[b][a] = weight;  // Для неориентированного графа
 }
+
+int Graph::GetSize() { return vertices_count_; }
 
 const std::unordered_map<Point, double, Point::Hash>& Graph::GetNeighbors(
     const Point& node) {

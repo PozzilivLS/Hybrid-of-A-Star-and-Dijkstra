@@ -129,10 +129,12 @@
   <ItemGroup>
     <ClCompile Include="app.cpp" />
     <ClCompile Include="Cache\Cache.cpp" />
+    <ClCompile Include="Dijkstra.cpp" />
     <ClCompile Include="Graph\Graph.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cache\Cache.h" />
+    <ClInclude Include="Dijkstra.h" />
     <ClInclude Include="Graph\Graph.h" />
     <ClInclude Include="Point\Point.h" />
   </ItemGroup>

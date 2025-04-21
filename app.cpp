@@ -5,10 +5,14 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include <iomanip>
+
+#include <time.h>
 
 #include "Cache/Cache.h"
 #include "Graph/Graph.h"
 #include "Point/Point.h"
+#include "Dijkstra.h"
 
 // Эвристическая функция (манхэттенское расстояние)
 double Heuristic(const Point& a, const Point& b) {
@@ -115,6 +119,7 @@ std::vector<Point> HybridAStarDijkstra(Graph& graph, const Point& start,
 
 int main() {
   setlocale(LC_ALL, "Russian");
+  std::cout << std::fixed << std::setprecision(15);
 
   Graph graph;
 
@@ -136,26 +141,53 @@ int main() {
   // Ищем путь из (0, 0) в (2, 2)
   Point start(0, 0);
   Point goal(4, 2);
+
+  clock_t tStart = clock();
+
   auto path = HybridAStarDijkstra(graph, start, goal);
+
+  clock_t tEnd = clock();
 
   std::cout << "Найденный путь: ";
   for (const auto& p : path) {
     std::cout << "(" << p.x << ", " << p.y << ") ";
   }
   std::cout << std::endl;
+  std::cout << "Время работы: " << (double)(tEnd - tStart) << std::endl;
+
+  tStart = clock();
+  path = Dijkstra(graph, start, goal);
+  tEnd = clock();
+  for (const auto& p : path) {
+    std::cout << "(" << p.x << ", " << p.y << ") ";
+  }
+  std::cout << std::endl;
+  std::cout << "Время работы: " << (double)(tEnd - tStart) << std::endl;
 
   // Меняем вес динамического ребра
   graph.UpdateEdge(Point(2, 1), Point(2, 2), 0.5);
   graph.UpdateEdge(Point(0, 0), Point(2, 1), 0.5);
 
   // Ищем путь снова
+  tStart = clock();
   auto new_path = HybridAStarDijkstra(graph, start, goal);
+  tEnd = clock();
 
   std::cout << "Новый путь после изменения графа: ";
   for (const auto& p : new_path) {
     std::cout << "(" << p.x << ", " << p.y << ") ";
   }
   std::cout << std::endl;
+  std::cout << "Время работы: " << (double)(tEnd - tStart) << std::endl;
+
+  tStart = clock();
+  new_path = Dijkstra(graph, start, goal);
+  tEnd = clock();
+  for (const auto& p : new_path) {
+    std::cout << "(" << p.x << ", " << p.y << ") ";
+  }
+  std::cout << std::endl;
+  std::cout << "Время работы: " << (double)(tEnd - tStart) << std::endl;
 
   return 0;
 }
