@@ -12,7 +12,7 @@
 
 class Graph {
  public:
-  void AddEdge(Point a, Point b, double weight, bool is_dynamic = false);
+  void AddEdge(Point a, Point b, bool is_dynamic = false);
 
   int GetSize();
 

@@ -7,7 +7,9 @@
 
 #include "../Point/Point.h"
 
-void Graph::AddEdge(Point a, Point b, double weight, bool is_dynamic) {
+void Graph::AddEdge(Point a, Point b, bool is_dynamic) {
+  double weight = std::sqrt((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y));
+
   if (is_dynamic) {
     dynamic_edges_.emplace(a, b);
     dynamic_edges_.emplace(b, a);

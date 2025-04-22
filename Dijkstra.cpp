@@ -52,5 +52,6 @@ std::vector<Point> Dijkstra(Graph& gr, const Point& start, const Point& end) {
     node = came_from[node];
   }
   std::reverse(path.begin(), path.end());
+  std::cout << "(Длина пути - " << dist[end] << ") ";
   return path;
 }

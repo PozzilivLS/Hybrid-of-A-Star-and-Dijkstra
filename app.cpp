@@ -21,7 +21,7 @@ double Heuristic(const Point& a, const Point& b) {
 
 std::vector<Point> HybridAStarDijkstra(Graph& graph, const Point& start,
                                        const Point& goal,
-                                       bool with_cached = true) {
+                                       bool with_cached = false) {
   // Приоритетная очередь: пары (f_value, точка)
   std::priority_queue<std::pair<double, Point>, std::vector<std::pair<double, Point>>,
                       std::greater<std::pair<double, Point>>>
@@ -41,8 +41,8 @@ std::vector<Point> HybridAStarDijkstra(Graph& graph, const Point& start,
 
     if (current == goal) {
       // Кэширование пути до goal
-      Cache new_cache{start, current, came_from, g_values};
-      graph.AddCache(new_cache);
+      //Cache new_cache{start, current, came_from, g_values};
+      //graph.AddCache(new_cache);
 
       // Восстановление пути
       std::vector<Point> path;
@@ -54,6 +54,7 @@ std::vector<Point> HybridAStarDijkstra(Graph& graph, const Point& start,
       path.push_back(start);
       std::reverse(path.begin(), path.end());
 
+      std::cout << "(Длина пути - " << g_values[goal] << ") ";
       return path;
     }
 
@@ -83,11 +84,10 @@ std::vector<Point> HybridAStarDijkstra(Graph& graph, const Point& start,
 
       neighbor.in_dynamic_edge = graph.VertexInDynamicEdge(neighbor);
 
-      if (!graph.IsDynamicEdge(current, neighbor) && graph.IsCached(current) &&
+      /*if (!graph.IsDynamicEdge(current, neighbor) && graph.IsCached(current) &&
           graph.IsCached(neighbor) && with_cached) {
         continue;
-      }
-
+      }*/
       if (!g_values.count(neighbor) || new_g < g_values[neighbor]) {
         came_from[neighbor] = current;
         g_values[neighbor] = new_g;
@@ -98,8 +98,8 @@ std::vector<Point> HybridAStarDijkstra(Graph& graph, const Point& start,
           f_value = new_g;
 
           // Кэшируем путь до ребра
-          Cache new_cache{start, current, came_from, g_values};
-          graph.AddCache(new_cache);
+          //Cache new_cache{start, current, came_from, g_values};
+          //graph.AddCache(new_cache);
 
         } else {
           // Режим A* с эвристикой
@@ -119,28 +119,33 @@ std::vector<Point> HybridAStarDijkstra(Graph& graph, const Point& start,
 
 int main() {
   setlocale(LC_ALL, "Russian");
-  std::cout << std::fixed << std::setprecision(15);
+  srand(time(NULL));
+  std::cout << std::fixed << std::setprecision(5);
 
   Graph graph;
 
-  // Добавляем рёбра (u, v, weight, is_dynamic)
-  graph.AddEdge(Point(0, 0), Point(2, 0), 2);
-  graph.AddEdge(Point(2, 0), Point(4, 0), 2);
-  graph.AddEdge(Point(4, 0), Point(6, 0), 2);
-  graph.AddEdge(Point(0, 0), Point(2, 1), 2.24, true);
-  graph.AddEdge(Point(0, 0), Point(0, 2), 2);
-  graph.AddEdge(Point(0, 0), Point(2, 2), 2.83);
-  graph.AddEdge(Point(2, 0), Point(4, 2), 2.83);  // Динамическое ребро
-  graph.AddEdge(Point(4, 0), Point(4, 2), 2);
-  graph.AddEdge(Point(6, 0), Point(4, 2), 2.83);
-  graph.AddEdge(Point(0, 2), Point(2, 2), 2);
-  graph.AddEdge(Point(2, 2), Point(2, 3), 1);
-  graph.AddEdge(Point(2, 2), Point(4, 2), 1);
-  graph.AddEdge(Point(2, 1), Point(2, 2), 1, true);
+  std::vector<std::pair<Point, Point>> dynamic_points;
+  for (int i = 0; i < 10000000; i++) {
+    int x1 = std::rand() % 300;
+    int y1 = std::rand() % 300;
+    int x2 = std::rand() % 300;
+    int y2 = std::rand() % 300;
+    bool is_dynamic = (std::rand() % 100) > 95;
 
-  // Ищем путь из (0, 0) в (2, 2)
-  Point start(0, 0);
-  Point goal(4, 2);
+    if (is_dynamic) {
+      dynamic_points.emplace_back(Point(x1, y1), Point(x2, y2));
+    }
+
+    graph.AddEdge(Point(x1, y1), Point(x2, y2), is_dynamic);
+  }
+
+  // Ищем путь из (x1, y1) в (x2, y2)
+  int x1 = std::rand() % 300;
+  int y1 = std::rand() % 300;
+  int x2 = std::rand() % 300;
+  int y2 = std::rand() % 300;
+  Point start(x1, y1);
+  Point goal(x2, y2);
 
   clock_t tStart = clock();
 
@@ -148,46 +153,49 @@ int main() {
 
   clock_t tEnd = clock();
 
-  std::cout << "Найденный путь: ";
+  std::cout << "Найденный путь гибридным алгоритмом: ";
   for (const auto& p : path) {
     std::cout << "(" << p.x << ", " << p.y << ") ";
   }
   std::cout << std::endl;
-  std::cout << "Время работы: " << (double)(tEnd - tStart) << std::endl;
+  std::cout << "Время работы: " << (int)(tEnd - tStart) << std::endl;
 
   tStart = clock();
   path = Dijkstra(graph, start, goal);
   tEnd = clock();
+  std::cout << "Найденный путь Дейкстрой: ";
   for (const auto& p : path) {
     std::cout << "(" << p.x << ", " << p.y << ") ";
   }
   std::cout << std::endl;
-  std::cout << "Время работы: " << (double)(tEnd - tStart) << std::endl;
+  std::cout << "Время работы: " << (int)(tEnd - tStart) << std::endl;
 
-  // Меняем вес динамического ребра
-  graph.UpdateEdge(Point(2, 1), Point(2, 2), 0.5);
-  graph.UpdateEdge(Point(0, 0), Point(2, 1), 0.5);
+  // Меняем вес динамических ребер
+  for (const auto& edge : dynamic_points) {
+    graph.UpdateEdge(edge.first, edge.second, std::rand() % 40);
+  }
 
   // Ищем путь снова
   tStart = clock();
   auto new_path = HybridAStarDijkstra(graph, start, goal);
   tEnd = clock();
 
-  std::cout << "Новый путь после изменения графа: ";
+  std::cout << "Новый путь после изменения графа гибридным алгоритмом: ";
   for (const auto& p : new_path) {
     std::cout << "(" << p.x << ", " << p.y << ") ";
   }
   std::cout << std::endl;
-  std::cout << "Время работы: " << (double)(tEnd - tStart) << std::endl;
+  std::cout << "Время работы: " << (int)(tEnd - tStart) << std::endl;
 
   tStart = clock();
   new_path = Dijkstra(graph, start, goal);
   tEnd = clock();
+  std::cout << "Найденный путь Дейкстрой: ";
   for (const auto& p : new_path) {
     std::cout << "(" << p.x << ", " << p.y << ") ";
   }
   std::cout << std::endl;
-  std::cout << "Время работы: " << (double)(tEnd - tStart) << std::endl;
+  std::cout << "Время работы: " << (int)(tEnd - tStart) << std::endl;
 
   return 0;
 }
