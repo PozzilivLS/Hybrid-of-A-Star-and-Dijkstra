@@ -7,7 +7,7 @@ class Point {
  public:
   int x = 0;
   int y = 0;
-  bool in_dynamic_edge = false;
+
   Point() = default;
   Point(int x, int y) : x(x), y(y) {};
 
