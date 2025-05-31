@@ -433,3 +433,5 @@ FodyWeavers.xsd
 *.sln.iml
 
 *.vcxproj
+*.filters
+*.user
